@@ -1,0 +1,139 @@
+# Copyright 2019 Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "certificate-dns-bridge.fullname" . }}
+  labels:
+    app: {{ include "certificate-dns-bridge.name" . }}
+    chart: {{ include "certificate-dns-bridge.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+---
+# Grant the webhook permission to read the ConfigMap containing the Kubernetes
+# apiserver's requestheader-ca-certificate.
+# This ConfigMap is automatically created by the Kubernetes apiserver.
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: {{ include "certificate-dns-bridge.fullname" . }}:webhook-authentication-reader
+  namespace: kube-system
+  labels:
+    app: {{ include "certificate-dns-bridge.name" . }}
+    chart: {{ include "certificate-dns-bridge.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "certificate-dns-bridge.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+---
+# apiserver gets the auth-delegator role to delegate auth decisions to
+# the core apiserver
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "certificate-dns-bridge.fullname" . }}:auth-delegator
+  labels:
+    app: {{ include "certificate-dns-bridge.name" . }}
+    chart: {{ include "certificate-dns-bridge.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "certificate-dns-bridge.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+---
+# Grant cert-manager permission to validate using our apiserver
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{ include "certificate-dns-bridge.fullname" . }}:domain-solver
+  labels:
+    app: {{ include "certificate-dns-bridge.name" . }}
+    chart: {{ include "certificate-dns-bridge.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+  - apiGroups:
+      - {{ .Values.groupName }}
+    resources:
+      - '*'
+    verbs:
+      - 'create'
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "certificate-dns-bridge.fullname" . }}:domain-solver
+  labels:
+    app: {{ include "certificate-dns-bridge.name" . }}
+    chart: {{ include "certificate-dns-bridge.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "certificate-dns-bridge.fullname" . }}:domain-solver
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ .Values.certManager.serviceAccountName }}
+    namespace: {{ .Values.certManager.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: {{ include "certificate-dns-bridge.fullname" . }}:dns-admin
+  labels:
+    app: {{ include "certificate-dns-bridge.name" . }}
+    chart: {{ include "certificate-dns-bridge.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+  - apiGroups:
+      - dns.gardener.cloud
+    resources:
+      - dnsentries
+    verbs:
+      - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "certificate-dns-bridge.fullname" . }}:dns-admin
+  labels:
+    app: {{ include "certificate-dns-bridge.name" . }}
+    chart: {{ include "certificate-dns-bridge.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "certificate-dns-bridge.fullname" . }}:dns-admin
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "certificate-dns-bridge.fullname" . }}
+    namespace: {{ .Release.Namespace }}

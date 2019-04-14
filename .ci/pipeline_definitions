@@ -1,0 +1,22 @@
+certificate-dns-bridge-release:
+  template: 'default'
+  base_definition:
+    traits:
+      version:
+        preprocess: 'finalize'
+        inject_effective_version: true
+      publish:
+        dockerimages:
+          certificate-dns-bridge:
+            image: 'eu.gcr.io/gardener-project/certificate-dns-bridge'
+            tag_as_latest: true
+    repo:
+      trigger: false
+    steps:
+      inject_updated_version: 
+        publish_to: ['source']
+  variants:
+    patch-release:
+      traits:
+        release:
+          nextversion: 'bump_patch'

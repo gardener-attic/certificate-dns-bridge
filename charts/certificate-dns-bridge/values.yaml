@@ -1,0 +1,58 @@
+# Copyright 2019 Copyright (c) 2019 SAP SE or an SAP affiliate company. All rights reserved. This file is licensed under the Apache Software License, v. 2 except as noted otherwise in the LICENSE file.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The GroupName here is used to identify your company or business unit that
+# created this webhook.
+# For example, this may be "acme.mycompany.com".
+# This name will need to be referenced in each Issuer's `webhook` stanza to
+# inform cert-manager of where to send ChallengePayload resources in order to
+# solve the DNS01 challenge.
+# This group name should be **unique**, hence using your own company's domain
+# here is recommended.
+groupName: cert.gardener.cloud
+
+certManager:
+  namespace: cert-manager
+  serviceAccountName: cert-manager
+
+image:
+  repository: "eu.gcr.io/gardener-project/certificate-dns-bridge"
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: certificate-dns-bridge
+solverName: certificate-dns-bridge
+
+service:
+  type: ClusterIP
+  port: 443
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
