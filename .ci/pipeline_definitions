@@ -12,11 +12,10 @@ certificate-dns-bridge-release:
             tag_as_latest: true
     repo:
       trigger: false
-    steps:
-      inject_updated_version: 
-        publish_to: ['source']
+    steps: ~
   variants:
     patch-release:
       traits:
         release:
           nextversion: 'bump_patch'
+          release_callback: '.ci/inject_updated_version'

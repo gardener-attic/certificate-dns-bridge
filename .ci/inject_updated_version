@@ -4,7 +4,3 @@ values_yaml="$REPO_DIR/charts/certificate-dns-bridge/values.yaml"
 tmp_data=$(cat "$values_yaml")
 sed -E "s/(\s+)tag: .*\>/\1tag: $EFFECTIVE_VERSION/1" <<< $tmp_data > "$values_yaml"
 echo "Successfully injected new version $EFFECTIVE_VERSION into $values_yaml"
-
-git add "$values_yaml"
-git commit -m "inject version '$EFFECTIVE_VERSION' into values.yaml"
-echo $(git log -1)
