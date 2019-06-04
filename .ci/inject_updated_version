@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -eu
 # inject released version into values.yaml file during release
 values_yaml="$REPO_DIR/charts/certificate-dns-bridge/values.yaml"
 tmp_data=$(cat "$values_yaml")
