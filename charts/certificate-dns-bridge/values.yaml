@@ -28,7 +28,7 @@ certManager:
 
 image:
   repository: "eu.gcr.io/gardener-project/certificate-dns-bridge"
-  tag: latest
+  tag: 1.0.0
   pullPolicy: IfNotPresent
 
 nameOverride: ""
