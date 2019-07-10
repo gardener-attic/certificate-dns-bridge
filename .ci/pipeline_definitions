@@ -13,7 +13,7 @@ certificate-dns-bridge-release:
     repo:
       trigger: false
     steps: ~
-  variants:
+  jobs:
     patch-release:
       traits:
         release:
