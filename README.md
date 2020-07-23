@@ -33,7 +33,7 @@ The solver is actually a small API service. It gets a `POST` request from the ce
 To connect the cert-manager to the solver, a specifically configured `Issuer` (or `ClusterIssuer`) is needed. It should look something like this:
 
 ```yaml
-apiVersion: certmanager.k8s.io/v1alpha1
+apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: my-issuer
