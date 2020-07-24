@@ -160,13 +160,13 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	}
 
 	log.V(3).Infof("challenge [%s|%s] - creating TXT record for %s", name, namespace, dnse.Spec.DNSName)
-	_, err2 := c.dclient.KracV1alpha1().DNSEntries(namespace).Create(&dnse)
+	_, err2 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Create(&dnse)
 	if err2 == nil {
 		log.V(2).Infof("challenge [%s|%s] - DNSEntry for '%s' created", name, namespace, dnse.Spec.DNSName)
 	} else {
 		if errors.IsAlreadyExists(err2) {
 			log.V(3).Infof("challenge [%s|%s] - DNSEntry for '%s' seems to exist, updating it", name, namespace, dnse.Spec.DNSName)
-			_, err3 := c.dclient.KracV1alpha1().DNSEntries(namespace).Update(&dnse)
+			_, err3 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Update(&dnse)
 			if err3 == nil {
 				log.V(3).Infof("challenge [%s|%s] - updated DNSEntry for '%s' updated", name, namespace, dnse.Spec.DNSName)
 			} else {
@@ -207,7 +207,7 @@ func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	}
 
 	log.V(3).Infof("cleanup [%s|%s] - deleting DNSEntry", name, namespace)
-	err = c.dclient.KracV1alpha1().DNSEntries(namespace).Delete(name, &metav1.DeleteOptions{})
+	err = c.dclient.DnsV1alpha1().DNSEntries(namespace).Delete(name, &metav1.DeleteOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.Warningf("cleanup [%s|%s] - tried to delete DNSEntry, but it didn't exist", name, namespace)
