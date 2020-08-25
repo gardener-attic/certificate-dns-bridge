@@ -16,6 +16,7 @@ certificate-dns-bridge-release:
   jobs:
     patch-release:
       traits:
+        component_descriptor: ~
         release:
           nextversion: 'bump_patch'
           release_callback: '.ci/inject_updated_version'
