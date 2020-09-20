@@ -1,4 +1,8 @@
 #!/bin/bash -eu
+# SPDX-FileCopyrightText: 2019 SAP SE or an SAP affiliate company and Gardener contributors.
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # inject released version into values.yaml file during release
 values_yaml="$REPO_DIR/charts/certificate-dns-bridge/values.yaml"
 tmp_data=$(cat "$values_yaml")
