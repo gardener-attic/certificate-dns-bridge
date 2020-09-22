@@ -1,5 +1,7 @@
 # certificate-dns-bridge
 
+[![reuse compliant](https://reuse.software/badge/reuse-compliant.svg)](https://reuse.software/)
+
 Based on https://github.com/jetstack/cert-manager-webhook-example
 
 

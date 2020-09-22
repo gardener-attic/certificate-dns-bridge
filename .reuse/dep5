@@ -1,0 +1,44 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Gardener certificate-dns-bridge
+Upstream-Contact: The Gardener project <gardener@googlegroups.com>
+Source: https://github.com/gardener/certificate-dns-bridge
+Comment: The source code of this component was seeded based on commit
+  3fa162c5d70b9c849d0c2ff1568c7bf47cce7a9e of
+  https://github.com/jetstack/cert-manager-webhook-example/tree/3fa162c5d70b9c849d0c2ff1568c7bf47cce7a9e
+  copying the following files from
+  https://github.com/jetstack/cert-manager-webhook-example:
+  .
+  * deploy/example-webhook/templates/_helpers.tpl
+  * deploy/example-webhook/templates/apiservice.yaml
+  * deploy/example-webhook/templates/deployment.yaml
+  * deploy/example-webhook/templates/pki.yaml
+  * deploy/example-webhook/templates/rbac.yaml
+  * deploy/example-webhook/templates/service.yaml
+  * main.go
+
+# --------------------------------------------------
+# source code
+
+Files:
+  .gitignore
+  charts/certificate-dns-bridge/.helmignore
+  charts/certificate-dns-bridge/templates/_helpers.tpl
+  CODEOWNERS
+  go.mod
+  go.sum
+  VERSION
+Copyright: 2019 SAP SE or an SAP affiliate company and Gardener contributors
+License: Apache-2.0
+
+# --------------------------------------------------
+# documentation
+
+Files:
+  CONTRIBUTING.md
+  README.md
+Copyright: 2019 SAP SE or an SAP affiliate company and Gardener contributors
+License: CC-BY-4.0
+
+# --------------------------------------------------
+# source dependencies
+
