@@ -19,7 +19,7 @@ This guide assumes that the [cert-manager](https://github.com/jetstack/cert-mana
 
 These are important parameters of the `values.yaml` file you should have a look at:
 
-- `groupName` and `solverName`: Together these two form a unique identifier for your solver deployment. `groupName` should be a unique API group name (the creators of cert-manager advise to set it to your company's domain). `solverName` is expected to be unique within all solver deployments that share a `groupName` and can be used to differentiate between them. 
+- `groupName` and `solverName`: Together these two form a unique identifier for your solver deployment. `groupName` should be a unique API group name (the creators of cert-manager advise to set it to your company's domain). `solverName` is expected to be unique within all solver deployments that share a `groupName` and can be used to differentiate between them.
 
 - `certManager.namespace`: The namespace in which cert-manager is deployed.
 
@@ -27,7 +27,7 @@ These are important parameters of the `values.yaml` file you should have a look 
 
 - `verbose`: You can set this value to change the verbosity level of the solver logs. If not specified, it defaults to `2`.
 
-The solver is actually a small API service. It gets a `POST` request from the cert-manager when a TXT record (for the `DNS01` validation) needs to be created, extracts the necessary information from the JSON object that comes with the request and creates a `DNSEntry` object out of it. This object is picked up by the dns-controller-manager, which creates the TXT record. Once the existence of the TXT record has been validated, cert-manager sends another request to the solver, indicating that the record is no longer needed. The solver deletes the corresponding `DNSEntry` object, which in turn triggers the dns-controller-manager to delete the TXT record. 
+The solver is actually a small API service. It gets a `POST` request from the cert-manager when a TXT record (for the `DNS01` validation) needs to be created, extracts the necessary information from the JSON object that comes with the request and creates a `DNSEntry` object out of it. This object is picked up by the dns-controller-manager, which creates the TXT record. Once the existence of the TXT record has been validated, cert-manager sends another request to the solver, indicating that the record is no longer needed. The solver deletes the corresponding `DNSEntry` object, which in turn triggers the dns-controller-manager to delete the TXT record.
 
 
 ### Configure the Issuer
@@ -35,7 +35,7 @@ The solver is actually a small API service. It gets a `POST` request from the ce
 To connect the cert-manager to the solver, a specifically configured `Issuer` (or `ClusterIssuer`) is needed. It should look something like this:
 
 ```yaml
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: my-issuer
@@ -56,7 +56,7 @@ spec:
               ttl: 300
 ```
 
-Only the `webhook` part of the manifest is explained here, see the [official cert-manager documentation](https://docs.cert-manager.io) for more information on issuers (and specifically [ACME issuers](https://docs.cert-manager.io/en/master/tasks/issuers/setup-acme/index.html)). 
+Only the `webhook` part of the manifest is explained here, see the [official cert-manager documentation](https://docs.cert-manager.io) for more information on issuers (and specifically [ACME issuers](https://docs.cert-manager.io/en/master/tasks/issuers/setup-acme/index.html)).
 
 - `groupName` and `solverName`: The values here must match the corresponding values from the solver helm chart, so cert-manager knows where to send the `POST` request to.
 - `config`: Here, some solver-specific configuration can be provided.
