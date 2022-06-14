@@ -1,6 +1,6 @@
 module github.com/gardener/certificate-dns-bridge
 
-go 1.12
+go 1.18
 
 require (
 	github.com/gardener/external-dns-management v0.7.13
