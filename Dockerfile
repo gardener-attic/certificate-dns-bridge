@@ -20,10 +20,9 @@ COPY . .
 
 RUN CGO_ENABLED=0 go build -o webhook -ldflags '-w -extldflags "-static"' .
 
-FROM alpine:3.16
+FROM gcr.io/distroless/static-debian11:nonroot
+WORKDIR /
 
-RUN apk add --no-cache ca-certificates
+COPY --from=build /workspace/webhook /webhook
 
-COPY --from=build /workspace/webhook /usr/local/bin/webhook
-
-ENTRYPOINT ["webhook"]
+ENTRYPOINT ["/webhook"]
