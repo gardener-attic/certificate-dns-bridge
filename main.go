@@ -5,24 +5,25 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"hash/crc32"
 	"os"
 	"strings"
 
-	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	// "k8s.io/client-go/kubernetes"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/rest"
-	log "k8s.io/klog"
+	log "k8s.io/klog/v2"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/cert-manager/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
+	"github.com/cert-manager/cert-manager/pkg/acme/webhook/cmd"
 	dnsapi "github.com/gardener/external-dns-management/pkg/apis/dns/v1alpha1"
 	dnsclient "github.com/gardener/external-dns-management/pkg/client/dns/clientset/versioned"
-	"github.com/jetstack/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
-	"github.com/jetstack/cert-manager/pkg/acme/webhook/cmd"
 )
 
 var GroupName = os.Getenv("GROUP_NAME")
@@ -104,6 +105,7 @@ func (c *customDNSProviderSolver) Name() string {
 // cert-manager itself will later perform a self check to ensure that the
 // solver has correctly configured the DNS provider.
 func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
+	ctx := context.Background()
 	// compute name based on hash of acme challenge domain and key
 	name := computeDNSEntryName(ch)
 	log.V(2).Infof("CHALLENGE received - %s", name)
@@ -150,13 +152,13 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	}
 
 	log.V(3).Infof("challenge [%s|%s] - creating TXT record for %s", name, namespace, dnse.Spec.DNSName)
-	_, err2 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Create(&dnse)
+	_, err2 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Create(ctx, &dnse, metav1.CreateOptions{})
 	if err2 == nil {
 		log.V(2).Infof("challenge [%s|%s] - DNSEntry for '%s' created", name, namespace, dnse.Spec.DNSName)
 	} else {
 		if errors.IsAlreadyExists(err2) {
 			log.V(3).Infof("challenge [%s|%s] - DNSEntry for '%s' seems to exist, updating it", name, namespace, dnse.Spec.DNSName)
-			_, err3 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Update(&dnse)
+			_, err3 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Update(ctx, &dnse, metav1.UpdateOptions{})
 			if err3 == nil {
 				log.V(3).Infof("challenge [%s|%s] - updated DNSEntry for '%s' updated", name, namespace, dnse.Spec.DNSName)
 			} else {
@@ -179,6 +181,7 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 // This is in order to facilitate multiple DNS validations for the same domain
 // concurrently.
 func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
+	ctx := context.Background()
 	name := computeDNSEntryName(ch)
 	log.V(2).Infof("CLEANUP received - %s", name)
 
@@ -197,7 +200,7 @@ func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	}
 
 	log.V(3).Infof("cleanup [%s|%s] - deleting DNSEntry", name, namespace)
-	err = c.dclient.DnsV1alpha1().DNSEntries(namespace).Delete(name, &metav1.DeleteOptions{})
+	err = c.dclient.DnsV1alpha1().DNSEntries(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.Warningf("cleanup [%s|%s] - tried to delete DNSEntry, but it didn't exist", name, namespace)
@@ -229,7 +232,7 @@ func (c *customDNSProviderSolver) Initialize(kubeClientConfig *rest.Config, stop
 	c.dclient = *dnscl
 
 	for i := 9; i >= 0; i-- {
-		if log.V(log.Level(i)) {
+		if log.V(log.Level(i)).Enabled() {
 			log.V(0).Infof("logging with verbosity %d", i)
 			break
 		}

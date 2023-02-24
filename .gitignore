@@ -13,3 +13,5 @@
 
 # Ignore the built binary
 certificate-dns-bridge
+
+vendor
