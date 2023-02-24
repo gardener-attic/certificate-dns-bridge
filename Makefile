@@ -6,4 +6,4 @@ IMAGE_NAME := "eu.gcr.io/gardener-project/certificate-dns-bridge"
 IMAGE_TAG := "latest"
 
 build:
-	docker build -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
+	docker build --platform=linux/amd64 -t "$(IMAGE_NAME):$(IMAGE_TAG)" .
