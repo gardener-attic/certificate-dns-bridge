@@ -108,8 +108,8 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	ctx := context.Background()
 	// compute name based on hash of acme challenge domain and key
 	name := computeDNSEntryName(ch)
-	log.V(2).Infof("CHALLENGE received - %s", name)
-	log.V(3).Infof("challenge [%s|-] - set TXT record at '%s' to '%s'", name, ch.ResolvedFQDN, ch.Key)
+	log.Infof("CHALLENGE received - %s", name)
+	log.Infof("challenge [%s|-] - set TXT record at '%s' to '%s'", name, ch.ResolvedFQDN, ch.Key)
 
 	cfg, err := loadConfig(ch.Config)
 	if err != nil {
@@ -120,7 +120,7 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	var namespace string
 	if cfg.Namespace != "" {
 		namespace = cfg.Namespace
-		log.V(4).Infof("challenge [%s|%s] - issuer configuration: namespace=%s", name, namespace, namespace)
+		log.Infof("challenge [%s|%s] - issuer configuration: namespace=%s", name, namespace, namespace)
 	} else {
 		namespace = ch.ResourceNamespace
 	}
@@ -128,12 +128,12 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	// set configuration, if specified
 	ann := map[string]string{}
 	if cfg.DNSClass != "" {
-		log.V(4).Infof("challenge [%s|%s] - issuer configuration: dns-class=%s", name, namespace, cfg.DNSClass)
+		log.Infof("challenge [%s|%s] - issuer configuration: dns-class=%s", name, namespace, cfg.DNSClass)
 		ann["dns.gardener.cloud/class"] = cfg.DNSClass
 	}
 	ttl := int64(120)
 	if cfg.TTL > 0 {
-		log.V(4).Infof("challenge [%s|%s] - issuer configuration: ttl=%d", name, namespace, cfg.TTL)
+		log.Infof("challenge [%s|%s] - issuer configuration: ttl=%d", name, namespace, cfg.TTL)
 		ttl = int64(cfg.TTL)
 	}
 	// create DNSEntry object
@@ -151,16 +151,16 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 		},
 	}
 
-	log.V(3).Infof("challenge [%s|%s] - creating TXT record for %s", name, namespace, dnse.Spec.DNSName)
+	log.Infof("challenge [%s|%s] - creating TXT record for %s", name, namespace, dnse.Spec.DNSName)
 	_, err2 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Create(ctx, &dnse, metav1.CreateOptions{})
 	if err2 == nil {
-		log.V(2).Infof("challenge [%s|%s] - DNSEntry for '%s' created", name, namespace, dnse.Spec.DNSName)
+		log.Infof("challenge [%s|%s] - DNSEntry for '%s' created", name, namespace, dnse.Spec.DNSName)
 	} else {
 		if errors.IsAlreadyExists(err2) {
-			log.V(3).Infof("challenge [%s|%s] - DNSEntry for '%s' seems to exist, updating it", name, namespace, dnse.Spec.DNSName)
+			log.Infof("challenge [%s|%s] - DNSEntry for '%s' seems to exist, updating it", name, namespace, dnse.Spec.DNSName)
 			_, err3 := c.dclient.DnsV1alpha1().DNSEntries(namespace).Update(ctx, &dnse, metav1.UpdateOptions{})
 			if err3 == nil {
-				log.V(3).Infof("challenge [%s|%s] - updated DNSEntry for '%s' updated", name, namespace, dnse.Spec.DNSName)
+				log.Infof("challenge [%s|%s] - updated DNSEntry for '%s' updated", name, namespace, dnse.Spec.DNSName)
 			} else {
 				log.Errorf("challenge [%s|%s] - DNSEntry seems to exist but cannot be updated: %v", name, namespace, err3.Error())
 				return err3
@@ -183,7 +183,7 @@ func (c *customDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	ctx := context.Background()
 	name := computeDNSEntryName(ch)
-	log.V(2).Infof("CLEANUP received - %s", name)
+	log.Infof("CLEANUP received - %s", name)
 
 	cfg, err := loadConfig(ch.Config)
 	if err != nil {
@@ -194,12 +194,12 @@ func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	var namespace string
 	if cfg.Namespace != "" {
 		namespace = cfg.Namespace
-		log.V(4).Infof("cleanup [%s|%s] - issuer configuration: namespace=%s", name, namespace, namespace)
+		log.Infof("cleanup [%s|%s] - issuer configuration: namespace=%s", name, namespace, namespace)
 	} else {
 		namespace = ch.ResourceNamespace
 	}
 
-	log.V(3).Infof("cleanup [%s|%s] - deleting DNSEntry", name, namespace)
+	log.Infof("cleanup [%s|%s] - deleting DNSEntry", name, namespace)
 	err = c.dclient.DnsV1alpha1().DNSEntries(namespace).Delete(ctx, name, metav1.DeleteOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -210,8 +210,7 @@ func (c *customDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 			return err
 		}
 	}
-	log.V(2).Infof("cleanup [%s|%s] - deleted DNSEntry", name, namespace)
-
+	log.Infof("cleanup [%s|%s] - deleted DNSEntry", name, namespace)
 	return nil
 }
 
